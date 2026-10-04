@@ -12,6 +12,18 @@ const minorVersion = 3
 
 // Use Express to publish static HTML, CSS, and JavaScript files that run in the browser. 
 app.use(express.static(__dirname + '/static'))
+
+// CORS failure demo. This route is registered BEFORE the cors middleware below, so its
+// response never gets an Access-Control-Allow-Origin header. The server still answers
+// (curl shows 200), but a browser blocks a page from another origin from reading it.
+app.get('/api/no-cors', (request, response) => {
+	console.log('Calling "/api/no-cors" on the Node.js server.')
+	response.type('text/plain')
+	response.send('no-cors response: a cross-origin browser page should never see this')
+})
+
+// Every route registered after this line sends Access-Control-Allow-Origin: *, which
+// lets the dice roller on the Azure static website read the responses.
 app.use(cors({ origin: '*' }))
 
 // The app.get functions below are being processed in Node.js running on the server.
@@ -19,7 +31,7 @@ app.use(cors({ origin: '*' }))
 app.get('/about', (request, response) => {
 	console.log('Calling "/about" on the Node.js server.')
 	response.type('text/plain')
-	response.send('About Node.js on Azure Template.')
+	response.send('About Node.js on Azure Template. Dice Roller API server')
 })
 
 app.get('/version', (request, response) => {
@@ -34,22 +46,14 @@ app.get('/api/ping', (request, response) => {
 	response.send('ping response')
 })
 
-// Return the value of 2 plus 2.
-app.get('/2plus2', (request, response) => {
-	console.log('Calling "/2plus2" on the Node.js server.')
-	response.type('text/plain')
-	response.send('4')
-})
-
-// Add x and y which are both passed in on the URL. 
-app.get('/add-two-integers', (request, response) => {
-	console.log('Calling "/add-two-integers" on the Node.js server.')
-	var inputs = url.parse(request.url, true).query
-	let x = parseInt(inputs.x)
-	let y = parseInt(inputs.y)
-	let sum = x + y
-	response.type('text/plain')
-	response.send(sum.toString())
+// Return the random number for the dice generator.
+app.get('/random-num', (request, response) => {
+	console.log('Calling "/random-num" on the Node.js server.')
+	let x = 1
+    let y = 7
+    let randomNum = Math.floor(Math.random() * 6) + 1 
+    response.type('text/plain')
+	response.send(randomNum.toString())
 })
 
 // Template for calculating BMI using height in feet/inches and weight in pounds.
@@ -95,38 +99,6 @@ app.get('/test', (request, response) => {
 
     // Close the response
     response.end('<h3>The End.</h3>');
-})
-
-// Return Batman as JSON.
-const batMan = {
-	"firstName":"Bruce",
-	"lastName":"Wayne",
-	"preferredName":"Batman",
-	"email":"darkknight@lewisu.edu",
-	"phoneNumber":"800-bat-mann",
-	"city":"Gotham",
-	"state":"NJ",
-	"zip":"07101",
-	"lat":"40.73",
-	"lng":"-74.17",
-	"favoriteHobby":"Flying",
-	"class":"cpsc-24700-001",
-	"room":"AS-104-A",
-	"startTime":"2 PM CT",
-	"seatNumber":"",
-	"inPerson":[
-		"Monday",
-		"Wednesday"
-	],
-	"virtual":[
-		"Friday"
-	]
-}
-
-app.get('/batman', (request, response) => {
-	console.log('Calling "/batman" on the Node.js server.')
-	response.type('application/json')
-	response.send(JSON.stringify(batMan))
 })
 
 // Load your JSON data

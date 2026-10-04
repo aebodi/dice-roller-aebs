@@ -1,18 +1,122 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8" />
-	<title>MERNa-NE</title>
+  <head>
+    <meta charset="UTF-8" />
+    <title>TU DiceRol</title>
+	<style>
+		#urlInput {
+            width: 500px; 
+            padding: 10px;
+            font-size: 14px;
+        }
+        #testingDiv {
+            padding: 20px;
+            background-color: lightgray;
+            margin-top: 20px;
+       } 
+    </style>
 </head>
 <body>
-	<h1>MERNa: This is a Node.js and Express hosted Microsoft Azure Template</h1>
-	<p>This repository serves as a template that can be used to create a Node.js and Express based website that can easily
-	be hosted on Microsoft Azure.</p><br />
+	<h1>The Ultimate Dice Roller</h1>
+	<p>This is an HTML, CSS, and JavaScript MERNa web client. To test your MERNa server, enter your 
+	MERNa sever URL below and press test connection button.</p>
 
-	MERNa stands for MongoDB, Express, React, abd Node on Azure.
+	<label for="urlInput">MERNa Server URL:</label><br />
+	<input type="text" id="urlInput" placeholder="Enter the URL of your remote MERNa server here..."><br /><br />
 
-	Additional application functionality includes:<br />
-	<a href="fetching-from-server.html">Accessing Node.js Server-Side Application Programming Interfaces (APIs)</a><br />
-	<a href="fetching-remote-dog-breeds.html">Accessing Remote Application Programming Interfaces (APIs)</a>
+	<button onclick="testMERNaServerConnection()">Test MERNa Server Connection</button>
+	<div id="ping"></div><br /><br />
+
+	<script>
+		async function testMERNaServerConnection() {
+			const pingField = document.getElementById("ping");
+			pingField.innerHTML = "";
+			var div = document.getElementById('testingDiv');
+			div.style.display = 'none';
+
+			const url = document.getElementById("urlInput").value + "/api/ping";
+			const response = await fetch(url);
+			const pingResponse = await response.text();
+
+			if (pingResponse === 'ping response') {
+				pingField.innerHTML = "Success!";
+				var div = document.getElementById('testingDiv');
+				div.style.display = 'block';
+			} 
+		}
+	</script>
+
+	<div id="testingDiv">
+		<button type="button" onclick="fetchAbout()">Fetch About</button>
+		<div id="fetch-about-result"></div>
+		<br><br>
+
+		Generate a random number on the Node.js server.<br />
+		<button type="button" onclick="randomNum()" id="x-value">Dice Random Number</button> 
+		
+	<input id="randomNum" disabled></input><br /><br /><br />
+
+		<button type="button" onclick="calculateBMI()">Calculate BMI</button>
+		<div id="bmi-result"></div>
+		<br><br>
+
+		<script>
+			let fetchAboutCounter = 0
+			async function fetchAbout() {
+				fetchAboutCounter++
+				const url = document.getElementById("urlInput").value + "/about";
+				const response = await fetch(url)
+				const responseText = await response.text()
+				document.getElementById("fetch-about-result").innerHTML = responseText + " ("+fetchAboutCounter+")"
+			}
+
+			let fetch2plus2Counter = 0
+			async function fetch2Plus2() {
+				fetch2plus2Counter++
+				const url = document.getElementById("urlInput").value + "/2plus2";
+				const response = await fetch(url)
+				const responseText = await response.text()
+				document.getElementById("fetch-2plus2-result").innerHTML = responseText + " ("+fetch2plus2Counter+")"
+			}
+
+            let randomNumCounter = 0;
+			async function randomNum() {
+                randomNumCounter++
+				const x = document.getElementById("x-value").value
+
+				// Note the URL (fetch) string will look something like '/random=num?x=6' when it is sent.
+				const url = document.getElementById("urlInput").value
+				const fetchString = url+"/random-num?x="+x
+				const response = await fetch(fetchString)
+				const responseText = await response.text()
+				document.getElementById("randomNum").value = responseText
+			}
+
+			async function calculateBMI() {
+				// Approximate height and weight for a man in the US. 
+				const url = document.getElementById("urlInput").value;
+				const fetchString = url+'/calculate-bmi?feet=5&inches=10&lbs=186';
+				const response = await fetch(fetchString)
+				const responseText = await response.text()
+				console.log(responseText)
+				document.getElementById("bmi-result").innerHTML = responseText
+			}
+		</script>
+		
+        <button onclick="testFavoritePlaces()">Favorite Places</button>
+		
+        <div id="favoritePlacesJSON">Favorite Places JSON</div><br /><br />
+		<script>
+			async function testFavoritePlaces() {
+				const url = document.getElementById("urlInput").value + "/api/favorite-places";
+				const response = await fetch(url);
+				const places = await response.json();
+
+				const favoritePlacesJSONField = document.getElementById("favoritePlacesJSON");
+				const favoritePlacesText = "<pre>"+JSON.stringify(places, null, 4)+"</pre"
+				favoritePlacesJSONField.innerHTML = favoritePlacesText
+			}
+		</script>
+	</div>
 </body>
 </html>
